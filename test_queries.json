@@ -1,0 +1,47 @@
+
+[
+    {
+      "query": "¿Cuántos días de vacaciones pagadas tengo al año y cómo los solicito?",
+      "expected_department": "HR"
+    },
+    {
+      "query": "Mi recibo de sueldo del mes pasado vino con un descuento que no entiendo.",
+      "expected_department": "HR"
+    },
+    {
+      "query": "No me funciona la VPN corporativa y me da error de autenticación 403.",
+      "expected_department": "Tech"
+    },
+    {
+      "query": "Necesito que me den acceso al repositorio de producción en GitHub.",
+      "expected_department": "Tech"
+    },
+    {
+      "query": "¿Cuál es el proceso para cambiar la cuenta bancaria donde recibo mi nómina?",
+      "expected_department": "Finance"
+    },
+    {
+      "query": "Necesito generar el reporte de facturación trimestral para el equipo de ventas.",
+      "expected_department": "Finance"
+    },
+    {
+      "query": "¿Cuál es la política de la empresa sobre la confidencialidad de los datos del cliente?",
+      "expected_department": "Legal"
+    },
+    {
+      "query": "Hola, buenos días, espero que estén muy bien.",
+      "expected_department": "Clarification"
+    },
+    {
+      "query": "Necesito ayuda con un problema por favor.",
+      "expected_department": "Clarification"
+    },
+    {
+      "query": "Quiero saber si puedo comprar una laptop nueva con el presupuesto de la empresa y que me lo reembolsen.",
+      "expected_department": "Finance"
+    },
+    {
+      "query": "Se me rompió la pantalla de la computadora del trabajo, ¿dónde pido el reemplazo?",
+      "expected_department": "Tech"
+    }
+  ]
