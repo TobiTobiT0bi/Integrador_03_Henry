@@ -1,6 +1,5 @@
 import os
 from typing import Dict, Any
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langfuse.model import CallbackHandler
 
@@ -11,13 +10,13 @@ from src.agents.clarification_agent import ClarificationAgent
 from src.agents.hr_agent import HRAgent
 from src.agents.tech_agent import TechAgent
 from src.agents.finance_agent import FinanceAgent
+from src.config import Config
 
 class MultiAgentOrchestratorSystem:
     def __init__(self):
-        load_dotenv()
         
         self.langfuse_callback = CallbackHandler()
-        self.llm = ChatOpenAI(model= os.getenv("MODEL"), temperature=0)
+        self.llm = ChatOpenAI(model= Config.MODEL_NAME, temperature=0)
         
         print(" Inicializando almacenamiento de conocimiento corporativo...")
         self.db_manager = VectorDatabaseManager()
