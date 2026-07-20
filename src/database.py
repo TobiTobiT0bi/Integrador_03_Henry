@@ -3,7 +3,7 @@ from typing import Dict
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 class VectorDatabaseManager:
     def __init__(self, data_dir: str = "data", persist_dir: str = "data/chroma_db"):

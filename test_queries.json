@@ -18,7 +18,7 @@
     },
     {
       "query": "¿Cuál es el proceso para cambiar la cuenta bancaria donde recibo mi nómina?",
-      "expected_department": "Finance"
+      "expected_department": "HR"
     },
     {
       "query": "Necesito generar el reporte de facturación trimestral para el equipo de ventas.",
