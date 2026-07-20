@@ -1,0 +1,24 @@
+# REGLAMENTO GENERAL DE PROCESOS FINANCIEROS Y CONTABLES (V2026.2)
+
+## CAPÍTULO 1: POLÍTICA INSTITUCIONAL DE GASTOS Y REEMBOLSOS
+Sección 1.1: Criterios Generales de Elegibilidad para Reembolsos de Gastos
+La empresa reembolsará únicamente aquellos gastos que hayan sido incurridos directa, exclusiva y necesariamente en el ejercicio de las funciones laborales asignadas al colaborador, y que se ajusten estrictamente a los presupuestos previamente autorizados por las gerencias de cada área. Los gastos personales, de entretenimiento no corporativo, multas de tránsito de cualquier índole, o consumos que excedan los límites establecidos por día no serán reconocidos bajo ningún concepto por la auditoría contable interna.
+
+Sección 1.2: Límites de Gastos Viáticos por Viajes de Negocios
+Para los viajes de negocios de carácter nacional o internacional, se fijan los siguientes topes diarios de erogación:
+- Alojamiento en hotel homologado: Hasta 150 USD por noche en capitales financieras, y hasta 100 USD por noche en el resto de los destinos.
+- Alimentación y refrigerios: Hasta un tope máximo diario de 50 USD combinando almuerzo, cena y cafetería. No se requiere presentar facturas desglosadas por cada café, pero sí el ticket consolidado del establecimiento.
+- Transporte terrestre: Se priorizará el uso de aplicaciones de transporte corporativo vinculadas a la cuenta central de la empresa (Uber for Business). El uso de taxis particulares requiere la emisión de un comprobante fiscal válido con Clave de Identificación Tributaria corporativa para ser considerado para su reintegro.
+
+Sección 1.3: Flujo Digital de Rendición y Plazos Críticos de Presentación
+Toda solicitud de reembolso de gastos debe confeccionarse y enviarse digitalmente a través de la plataforma 'Expenseify' antes del día 25 del mes calendario en el que se originó el gasto. Es condición sine qua non adjuntar la factura digital válida, comprobante fiscal electrónico o recibo de tarjeta de crédito legible donde consten de forma explícita el nombre del comercio, la fecha exacta de la transacción, el desglose pormenorizado de los conceptos adquiridos y el monto final con impuestos incluidos. Las solicitudes cargadas con posterioridad al día 25 se postergarán de forma automática para el ciclo de pago del mes subsiguiente. El procesamiento y acreditación final en la cuenta bancaria del empleado toma un lapso de entre 7 y 10 días hábiles tras recibir la aprobación del mánager.
+
+## CAPÍTULO 2: PROCESAMIENTO DE FACTURACIÓN Y CUENTAS POR PAGAR
+Sección 2.1: Recepción de Facturas de Proveedores y Contratistas Externos
+Todas las facturas emitidas por proveedores de servicios externos, consultores independientes, licencias de software B2B o contratistas logísticos deben enviarse única y exclusivamente a la dirección de correo centralizada 'invoices@corp-saas-finance.com'. Cada documento debe ser emitido a nombre de la razón social de la compañía, detallando de forma obligatoria el número de Orden de Compra (PO) correspondiente que fue autorizado previamente por el departamento de Finanzas al inicio de la contratación. Las facturas que carezcan de un número de PO válido serán rechazadas de manera automática por el sistema de validación OCR y devueltas al emisor para su debida corrección.
+
+Sección 2.2: Ciclos de Pago Estándar de la Compañía (Net-30 y Net-60)
+La política estándar de cuentas por pagar estipula un plazo de cancelación de facturas bajo la modalidad comercial Net-30 (30 días corridos a partir de la fecha de aprobación técnica de la factura por el líder del proyecto). Para grandes proveedores de infraestructura Cloud o contratos corporativos de volumen mayor a 50,000 USD anuales, la empresa aplica de forma predeterminada la modalidad de pago Net-60, salvo que se haya negociado explícitamente en el contrato marco un descuento por pronto pago que justifique la erogación anticipada de flujo de caja. Los pagos se ejecutan mediante transferencia bancaria electrónica masiva todos los días jueves de cada semana laboral.
+
+Sección 2.3: Generación de Reportes Financieros Trimestrales de Cierre
+El equipo contable consolida el balance general, el estado de resultados (P&L) y el reporte de flujo de efectivo dentro de los primeros 10 días corridos posteriores al cierre de cada trimestre fiscal. Dichos reportes financieros trimestrales se estructuran bajo normas contables internacionales (IFRS) y son consolidados en un repositorio seguro dentro de la base ERP corporativa. El acceso a dichos documentos con fines de auditoría o armado de reportes de ventas requiere una credencial de visualización de nivel corporativo otorgada por el CFO de la compañía.

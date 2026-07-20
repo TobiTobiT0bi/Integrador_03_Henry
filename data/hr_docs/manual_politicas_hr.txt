@@ -1,0 +1,28 @@
+# MANUAL GLOBAL DE POLÍTICAS INTERNAS DE RECURSOS HUMANOS (V2026.1)
+
+## CAPÍTULO 1: RÉGIMEN DE LICENCIAS Y VACACIONES PAGADAS
+Sección 1.1: Asignación de Días Anuales de Descanso Continuo
+La compañía concede un período mínimo de 14 días corridos de vacaciones anuales pagadas para todo el personal contratado por tiempo indeterminado que cuente con una antigüedad menor a cinco años en la organización. Para aquellos empleados cuya antigüedad se encuentre en el rango de cinco a diez años, el beneficio se extenderá automáticamente a 21 días corridos. Los colaboradores con más de diez años de servicio efectivo gozarán de 28 días corridos. 
+
+Sección 1.2: Procedimiento Operativo para la Solicitud Formal de Licencias
+Todo colaborador que desee usufructuar su período vacacional deberá iniciar la solicitud formal con una antelación mínima de 30 días hábiles respecto a la fecha proyectada de inicio. El trámite se gestionará exclusivamente a través del módulo de Autoservicio en la plataforma interna de la intranet corporativa ("TalentHub"). Queda estrictamente prohibido coordinar vacaciones únicamente de forma verbal o vía canales de chat informal como Slack. El mánager directo dispone de un plazo perentorio de 5 días hábiles para aprobar o rechazar la solicitud basándose en las necesidades operativas del equipo. En caso de silencio administrativo, la solicitud escalará automáticamente a la jefatura de HR del sector.
+
+Sección 1.3: Licencias Especiales y Justificaciones Médicas de Fuerza Mayor
+La empresa reconoce licencias remuneradas por eventos de fuerza mayor o hitos personales. Por matrimonio legítimo se otorgarán 10 días corridos de licencia con goce de haberes, iniciándose el cómputo el día de la celebración o el primer día hábil siguiente. Por fallecimiento de familiares directos en primer grado (padres, hijos, cónyuges) se asignarán 5 días corridos. En situaciones de enfermedad general que impidan el normal desarrollo de las tareas, el empleado deberá notificar al departamento de Medicina Laboral antes de las 09:00 AM del primer día de ausencia y adjuntar un certificado oficial firmado por un profesional matriculado en formato PDF dentro de las 24 horas subsiguientes.
+
+## CAPÍTULO 2: ESQUEMA DE COMPENSACIONES, NÓMINAS Y BENEFICIOS
+Sección 2.1: Estructura de Liquidación y Fechas de Pago Efectivo
+El pago de haberes mensuales se efectúa de manera centralizada el cuarto día hábil anterior a la finalización del mes calendario en curso. La liquidación incluye el salario base, complementos por productividad si correspondieren y los descuentos obligatorios por ley referentes a aportes jubilatorios y cobertura médica. Los recibos de sueldo digitales estarán disponibles para su visualización y descarga en formato PDF en la plataforma "TalentHub" a partir de las 00:00 horas del día de pago. Los errores u omisiones detectados en el recibo deben reportarse mediante ticket formal antes del día 5 del mes siguiente.
+
+Sección 2.2: Programa de Cobertura Médica y Seguros Colectivos
+La empresa provee un plan de medicina prepaga de alta gama cubierto al 100% para el empleado titular. Los colaboradores tienen la opción de incorporar a su grupo familiar directo (cónyuge e hijos menores de 21 años) con un subsidio institucional del 50% del valor de la prima adicional, descontándose el saldo restante de forma automática en la nómina de haberes. El alta en la cobertura médica toma un plazo de procesamiento de hasta 15 días hábiles desde la firma del contrato laboral de ingreso.
+
+Sección 2.3: Reintegros por Trabajo Remoto y Equipamiento de Oficina
+Se asigna un bono mensual fijo en concepto de compensación por conectividad y servicios de internet para todo el personal bajo modalidad de teletrabajo o esquema híbrido de más de tres días semanales en el hogar. Dicho monto está exento de rendición de cuentas. Asimismo, los empleados disponen de un presupuesto único de equipamiento ergonómico de hasta 300 USD para adquirir una silla corporativa o monitor secundario a través de los proveedores homologados por el departamento de Compras.
+
+## CAPÍTULO 3: EVALUACIÓN DE DESEMPEÑO Y PLANES DE CARRERA
+Sección 3.1: Ciclo Anual de Desempeño OKR y Feedback Continuo
+La organización utiliza una metodología de evaluación basada en Objetivos y Resultados Clave (OKRs). Este ciclo consta de tres etapas críticas: definición de metas al inicio del año fiscal, revisión intermedia en el mes de julio, y calibración final de resultados en el mes de diciembre. Es mandatorio que los mánagers realicen sesiones individuales uno a uno (1-on-1) de manera quincenal para dar seguimiento a los indicadores clave y brindar retroalimentación constructiva continua.
+
+Sección 3.2: Políticas de Promoción Interna y Movilidad Horizontal
+Toda vacante abierta en la empresa se publicará primero de manera interna en TalentHub durante un período de 7 días corridos antes de abrirse al mercado externo. Los colaboradores que lleven un mínimo de 12 meses en su rol actual y hayan obtenido una calificación de 'Cumple Expectativas' o superior en su última evaluación anual son elegibles para postularse. Las promociones verticales implican un ajuste en la banda salarial que se verá reflejado en la nómina inmediatamente posterior a la fecha de efectivización del nuevo cargo.
