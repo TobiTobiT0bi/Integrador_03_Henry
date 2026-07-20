@@ -1,9 +1,13 @@
 import os
+import json
+import sys
+from pathlib import Path
 from typing import Dict, Any
 from langchain_openai import ChatOpenAI
-from langfuse.model import CallbackHandler
+from langfuse import observe, get_client
 
-# Importaciones de nuestros módulos internos
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from src.database import VectorDatabaseManager
 from src.agents.orchestrator import Orchestrator
 from src.agents.clarification_agent import ClarificationAgent
@@ -14,11 +18,10 @@ from src.config import Config
 
 class MultiAgentOrchestratorSystem:
     def __init__(self):
+        print(" Inicializando modelo de lenguaje centralizado...")
+        self.llm = ChatOpenAI(model=Config.MODEL_NAME, temperature=0)
         
-        self.langfuse_callback = CallbackHandler()
-        self.llm = ChatOpenAI(model= Config.MODEL_NAME, temperature=0)
-        
-        print(" Inicializando almacenamiento de conocimiento corporativo...")
+        print(" Cargando base de datos vectorial Chroma...")
         self.db_manager = VectorDatabaseManager()
         self.db_manager.build_or_load_vector_stores()
         
@@ -31,46 +34,45 @@ class MultiAgentOrchestratorSystem:
             "Finance": FinanceAgent(llm=self.llm, retriever=self.db_manager.get_retriever("finance")),
         }
 
+    @observe(name="Multi-Agent Customer Query Process")
     def process_customer_query(self, query: str) -> Dict[str, Any]:
         """
-        Recibe una consulta de cliente, ejecuta el ruteo inteligente, 
-        delega al agente correcto y traza todo el flujo hacia Langfuse.
+        Recibe la consulta del usuario, la clasifica mediante el Orquestador
+        y delega la resolución al agente especializado correspondiente.
+        Todo el flujo es capturado automáticamente por Langfuse.
         """
         print(f"\n [Entrada de Ticket]: '{query}'")
         
-        config = {
-            "callbacks": [self.langfuse_callback],
-            "metadata": {"user_query": query}
-        }
+        get_client().update_current_trace(
+            tags=["multi-agent", Config.MODEL_NAME],
+            metadata={"user_query": query}
+        )
         
-        # Paso 1: Clasificación de intención mediante el Orquestador estructurado
-        route_decision = self.orchestrator.chain.invoke({"query": query}, config=config)
-        
+        # Paso 1: Clasificación mediante el Orquestador
+        route_decision = self.orchestrator.route(query)
         dept = route_decision.department
         reason = route_decision.reasoning
+        
         print(f" [Orquestador]: Enrutado a -> {dept} | Motivo: {reason}")
+        get_client().update_current_trace(metadata={"assigned_department": dept})
         
-        self.langfuse_callback.auth_check() # Verifica conexión activa
-        
-        # Paso 2: Enrutamiento Condicional y Selección del Agente Experto
+        # Paso 2: Selección y ejecución del Agente Especialista
         agent = self.agents.get(dept)
         
         if not agent:
             final_response = (
                 f"[Sistema Central]: Se determinó que la consulta corresponde al área [{dept}], "
-                f"pero el Agente especializado está en mantenimiento corporativo. Derivando a analista humano..."
+                f"pero el Agente especializado no se encuentra disponible. Derivando a analista humano..."
             )
         else:
-            # Paso 3: Ejecución del agente especialista (RAG o Clarificación)
-            if hasattr(agent, "chain"):
-                if dept == "Clarification":
-                    final_response = agent.chain.invoke({"query": query}, config=config).content
-                else:
-                    final_response = agent.chain.invoke(query, config=config)
-            else:
+            if hasattr(agent, "run"):
                 final_response = agent.run(query)
+            elif hasattr(agent, "chain"):
+                final_response = agent.chain.invoke({"query": query}).content
+            else:
+                final_response = str(agent(query))
                 
-        print(f" [Respuesta Agente]: {final_response}")
+        print(f" [Respuesta del Agente]: {final_response}")
         
         return {
             "query": query,
@@ -80,28 +82,50 @@ class MultiAgentOrchestratorSystem:
         }
 
 # =====================================================================
-# EJECUCIÓN DEL FLUJO PRINCIPAL CON EL GOLDEN DATASET
+# EJECUCIÓN DEL FLUJO PRINCIPAL
 # =====================================================================
 if __name__ == "__main__":
-    import json
-    
     system = MultiAgentOrchestratorSystem()
-    
-    test_queries_path = "test_queries.json"
-    if os.path.exists(test_queries_path):
-        with open(test_queries_path, "r", encoding="utf-8") as f:
-            test_cases = json.load(f)
-            
-        print(f"\n🚀 Iniciando pruebas automatizadas sobre {len(test_cases)} consultas del Golden Dataset...")
+    langfuse_client = get_client()
+
+    # Si se pasa la bandera '--test', corre el Golden Dataset
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        test_queries_path = "test_queries.json"
         
-        for index, case in enumerate(test_cases, start=1):
-            print(f"\n=== Prueba {index}/{len(test_cases)} ===")
-            print(f"🎯 Categoría Esperada: {case['expected_department']}")
+        if os.path.exists(test_queries_path):
+            with open(test_queries_path, "r", encoding="utf-8") as f:
+                test_cases = json.load(f)
+                
+            print(f"\n🚀 Ejecutando pruebas sobre {len(test_cases)} consultas del Golden Dataset...")
             
-            output = system.process_customer_query(case["query"])
-            
-            status = "✅ MATCH" if output["assigned_department"] == case["expected_department"] else "❌ MISCLASSIFICATION"
-            print(f"📊 Resultado Clasificación: {status}")
+            for index, case in enumerate(test_cases, start=1):
+                print(f"\n=== Prueba {index}/{len(test_cases)} ===")
+                print(f"🎯 Categoría Esperada: {case['expected_department']}")
+                
+                output = system.process_customer_query(case["query"])
+                
+                status = "✅ MATCH" if output["assigned_department"] == case["expected_department"] else "❌ MISCLASSIFICATION"
+                print(f"📊 Resultado Clasificación: {status}")
+        else:
+            print(f"⚠️ No se encontró '{test_queries_path}'.")
+
+    # Por defecto, inicia la consola interactiva en vivo
     else:
-        print(f"⚠️ No se encontró el archivo '{test_queries_path}'. Ejecutando consulta de prueba básica.")
-        system.process_customer_query("Hola, buenas tardes a todos.")
+        print("\n🤖 ¡Sistema Multi-Agente Activo! Escribe 'salir' para finalizar.\n")
+        while True:
+            try:
+                user_input = input("👤 Tú: ").strip()
+                if not user_input:
+                    continue
+                if user_input.lower() in ["salir", "exit", "quit"]:
+                    print("👋 ¡Hasta luego!")
+                    break
+                
+                system.process_customer_query(user_input)
+                
+            except KeyboardInterrupt:
+                print("\n👋 Sesión finalizada.")
+                break
+
+    # Asegura que todas las trazas se envíen a Langfuse antes de terminar
+    langfuse_client.flush()

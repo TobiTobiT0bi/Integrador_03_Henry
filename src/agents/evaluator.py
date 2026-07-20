@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langfuse import Langfuse
+from langfuse import Langfuse, observe
 
 class QualityScores(BaseModel):
     """Puntajes de calidad asignados a la respuesta del asistente."""
@@ -27,6 +27,7 @@ class EvaluatorAgent:
         
         self.chain = self.prompt | llm.with_structured_output(QualityScores)
 
+    @observe(name="Score Evaluating")
     def evaluate_and_log(self, trace_id: str, query: str, response: str):
         """Evalúa la respuesta y sube las métricas a Langfuse asociadas al Trace."""
         print(f" [Evaluador]: Evaluando calidad de la respuesta para el Trace ID: {trace_id}...")

@@ -1,5 +1,6 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langfuse import observe
 
 class ClarificationAgent:
     """
@@ -17,6 +18,7 @@ class ClarificationAgent:
         ])
         self.chain = self.prompt | llm
 
+    @observe(name="Clarification agent")
     def run(self, query: str) -> str:
         response = self.chain.invoke({"query": query})
         return response.content

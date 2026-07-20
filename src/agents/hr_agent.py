@@ -2,6 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from langfuse import observe
 
 class HRAgent:
     """
@@ -38,5 +39,6 @@ class HRAgent:
             | StrOutputParser()
         )
 
+    @observe(name="HR agent RAG")
     def run(self, query: str) -> str:
         return self.chain.invoke(query)

@@ -34,11 +34,15 @@ setup:
 
 generate:
 	@echo "📈 Inyectando manuales densos en las carpetas de conocimiento..."
-	$(PYTHON_RUN) src/generate_knowledge.py
+	$(PYTHON_RUN) -m src.generate_knowledge
 
 run:
-	@echo "🚀 Lanzando orquestador y ejecutando pruebas con uv run..."
-	$(PYTHON_RUN) src/multi_agent_system.py
+	@echo "🚀 Iniciando consola interactiva..."
+	$(PYTHON_RUN) -m src.multi_agent_system
+
+test:
+	@echo "🧪 Ejecutando pruebas del Golden Dataset..."
+	$(PYTHON_RUN) -m src.multi_agent_system --test
 
 status:
 	@echo "🔍 Verificando estado de la infraestructura..."

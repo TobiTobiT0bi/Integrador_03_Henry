@@ -2,6 +2,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langfuse import observe
 
 class RouteIntent(BaseModel):
     """Clasifica la consulta del usuario al departamento correcto o solicita aclaración."""
@@ -28,5 +29,6 @@ class Orchestrator:
         ])
         self.chain = self.prompt | llm.with_structured_output(RouteIntent)
 
+    @observe(name="Orchestrator Routing")
     def route(self, query: str) -> RouteIntent:
         return self.chain.invoke({"query": query})
