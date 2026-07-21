@@ -1,11 +1,17 @@
 import os
 import sys
+
+from pathlib import Path
+
+# Forzar que el directorio raíz del proyecto sea el primero en sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import json
+import uuid
 from typing import Dict, Any, Optional
 from langchain_openai import ChatOpenAI
 
-# Importaciones directas de la versión moderna
-from langfuse import observe, get_client
+from langfuse import get_client
 
 from src.database import VectorDatabaseManager
 from src.agents.orchestrator import Orchestrator
@@ -15,6 +21,9 @@ from src.agents.tech_agent import TechAgent
 from src.agents.finance_agent import FinanceAgent
 from src.agents.evaluator import EvaluatorAgent
 from src.config import Config
+
+import src.agents.evaluator as eval_module
+print(f"DEBUG EVALUATOR PATH: {eval_module.__file__}")
 
 class MultiAgentOrchestratorSystem:
     def __init__(self):
@@ -36,12 +45,14 @@ class MultiAgentOrchestratorSystem:
             "Finance": FinanceAgent(llm=self.llm, retriever=self.db_manager.get_retriever("finance")),
         }
 
-    @observe(name="Multi-Agent Customer Query Process")
     def process_customer_query(self, query: str, run_evaluator: bool = True) -> Dict[str, Any]:
         """
         Recibe la consulta del usuario, la clasifica mediante el Orquestador,
         delega al agente especializado y la audita mediante el Evaluator.
         """
+        # Generar un ID único para asociar los eventos y scores en Langfuse
+        trace_id = str(uuid.uuid4())
+
         print(f"\n📥 [Entrada de Ticket]: '{query}'")
         
         # Paso 1: Clasificación mediante el Orquestador
@@ -68,14 +79,14 @@ class MultiAgentOrchestratorSystem:
                 final_response = str(agent(query))
                 
         print(f"💬 [Respuesta del Agente]: {final_response}\n")
-        
+
         # Paso 3: Auditoría con el EvaluatorAgent
         eval_results = None
         if run_evaluator:
             eval_results = self.evaluator.evaluate_and_log(
-                None,  # <-- Agregamos el argumento posicional 'trace_id' que exige el wrapper
                 query=query,
-                response=final_response
+                response=final_response,
+                trace_id=trace_id
             )
             
         return {
@@ -109,7 +120,7 @@ if __name__ == "__main__":
             print(f"⚠️ No se encontró '{test_queries_path}'.")
 
     else:
-        print("\n🤖 ¡Sistema Multi-Agente Activo! Escribe 'salir' para finalizar.\n")
+        print("\n🤖 ¡Sistema Multi-Agente Activo! Escribe 'salir' for finalizar.\n")
         while True:
             try:
                 user_input = input("👤 Tú: ").strip()
