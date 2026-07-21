@@ -19,7 +19,7 @@ Este sistema clasifica, enruta y resuelve tickets de usuarios dirigiéndolos aut
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <URL_DE_TU_REPOSITORIO>
+git clone https://github.com/TobiTobiT0bi/Integrador_03_Henry.git
 cd Integrador_03_Henry
 ```
 
@@ -48,7 +48,6 @@ pip install -r requirements.txt
 
 Crea un archivo .env en la raíz del proyecto basándote en el siguiente modelo:
 ```bash
-Fragmento de código
 
 # Clave API de OpenAI
 OPENAI_API_KEY="sk-proj-..."
