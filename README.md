@@ -161,3 +161,46 @@ Si ejecutas la solución desde el entorno Jupyter Notebook, sigue estrictamente 
 - **Evaluaciones Rigurosas**: El agente evaluador está configurado con un perfil estrictamente crítico, por lo que respuestas cortas o generalistas rara vez obtendrán puntuaciones perfectas (1.0).
 
 - **Persistencia de Conversación**: La versión actual procesa cada ticket de manera independiente (stateless). No mantiene historial multilaboral entre preguntas consecutivas del mismo usuario.
+
+---
+
+## 🧠 Decisiones de Arquitectura y Criterio de Ingeniería
+
+Para la construcción de este sistema se evaluaron diversas alternativas tecnológicas. A continuación se detallan las decisiones tomadas y las razones de por qué se eligieron sobre otras opciones del ecosistema:
+
+### 1. Selección de Componentes de LangChain & LLM
+* **Modelo Centralizado (`gpt-4o-mini`):** Se eligió frente a `gpt-4o` o modelos locales (como Llama 3 8B) debido a su excelente relación costo-latencia y su capacidad nativa para seguir instrucciones complejas en español. Optimiza los tiempos de respuesta del RAG manteniendo un rendimiento casi idéntico en tareas de extracción.
+* **Structured Outputs con Pydantic:** Para el `EvaluatorAgent` y el `Orchestrator`, se utilizó la API de salidas estructuradas de LangChain respaldada por esquemas de Pydantic. Esto garantiza un parseo sintácticamente seguro (evita fallos de JSON malformados) y obliga al modelo a generar una razonamiento previo (`reasoning`) antes de asignar un puntaje.
+
+### 2. Base de Datos Vectorial: ChromaDB vs. FAISS
+* **Elección:** **ChromaDB** (Persistencia Local por Colecciones).
+* **¿Por qué ChromaDB y no FAISS?:**
+  - **Persistencia Nativa y Simplicidad:** FAISS (de Meta) es una librería de indexación puramente en memoria enfocada en rendimiento extremo a gran escala, pero requiere gestión manual de serialización en disco y metadatos. ChromaDB ofrece persistencia integrada fuera de la caja (*out-of-the-box*) y gestión simplificada de colecciones por archivos en disco (`chroma_db/`).
+  - **Filtrado por Metadatos y Separación de Dominios:** ChromaDB permite aislar físicamente los datos por colecciones independientes (`HR`, `TECH`, `FINANCE`) de forma muy transparente, evitando que las consultas a un área interfieran o consuman memoria de otras.
+
+### 3. Modelo de Embeddings: OpenAI Embeddings vs. Text Transformers (Sentence-Transformers)
+* **Elección:** **OpenAI `text-embedding-3-small`**.
+* **¿Por qué OpenAI Embeddings y no modelos locales/HuggingFace?:**
+  - **Dimensión y Rendimiento en Español:** Los modelos locales ligeros de HuggingFace (como `all-MiniLM-L6-v2`) suelen estar fuertemente sesgados hacia el idioma inglés y requieren mayor potencia computacional local (CPU/GPU) durante el proceso de indexación.
+  - **Mismo Espacio de Vectorización y Normalización:** Al usar `text-embedding-3-small`, se aprovechan dimensiones optimizadas para semántica multilenguaje (incluyendo español técnico/corporativo) con una latencia de red despreciable y un costo prácticamente nulo para el volumen del proyecto, delegando la carga de cómputo fuera del servidor local.
+
+### 4. Estrategia de Routing y Dominio de Agentes
+* **Dynamic Prompt-Based Router vs. Clasificador Vectorial:** En lugar de un clasificador por similitud semántica (que suele fallar con frases cortas o ambiguas), se optó por un Router basado en LLM con un prompt optimizado. Esto permite detectar la intención real del usuario, manejar saludos informales y redirigirlos al `ClarificationAgent`.
+* **Aislamiento por Agentes Especialistas:** Se descartó un RAG monolítico (una sola base de datos con todos los manuales). Tener agentes e índices vectoriales independientes reduce el espacio de búsqueda del retriever, eliminando el "ruido de contexto" (interferencias entre políticas de RRHH y manuales de IT) y aumentando la precisión del RAG.
+
+### 5. Estrategia de Observabilidad (Langfuse v4)
+* **Tracing Pasivo mediante Callbacks:** Se eligió la integración nativa por `CallbackHandler` en las cadenas de LangChain en lugar de código decorador manual. Esto captura de forma no intrusiva toda la jerarquía de llamadas (Router -> Retriever -> LLM -> Evaluador) sin contaminar la lógica de negocio.
+
+### 6. Estrategia de Búsqueda Vectorial: k-NN (Exacto) vs. ANN (Aproximado)
+
+En los sistemas de recuperación de información basados en embeddings, existen dos enfoques principales para encontrar los vectores más similares a la consulta del usuario:
+
+* **k-NN (k-Nearest Neighbors - Búsqueda Exacta):** Calcula la distancia vectorial (por ejemplo, distancia Coseno o Euclidiana) comparando el vector de la consulta contra **absolutamente todos** los vectores almacenados en el índice ($O(N)$). Garantiza encontrar siempre los $k$ vecinos matemáticamente más cercanos, pero no escala bien con millones de vectores.
+* **ANN (Approximate Nearest Neighbors - Búsqueda Aproximada):** Utiliza estructuras de datos avanzadas (como grafos **HNSW** — *Hierarchical Navigable Small World* — o árboles KD) para explorar solo subconjuntos del espacio vectorial ($O(\log N)$). Ofrece un rendimiento extremadamente rápido a gran escala, sacrificando una fracción mínima de precisión (recall).
+
+#### 💡 Elección en el Proyecto y Criterio de Ingeniería:
+
+* **Elección en producción:** En este proyecto utilizamos **ANN (HNSW)**, que es el algoritmo por defecto que implementa **ChromaDB** en su motor interno (*hnswlib*).
+* **¿Por qué ANN (HNSW) sobre k-NN puro?:**
+  1. **Sub-segundo y Escalabilidad RAG:** En un sistema de atención al cliente corporativo, el volumen de manuales, normativas y FAQs crece constantemente. HNSW permite mantener tiempos de respuesta en el rango de milisegundos incluso si la base documental escala a decenas de miles de chunks.
+  2. **Balance Precisión/Latencia:** Para tareas de RAG en texto en español, el margen de error probabilístico de ANN es prácticamente despreciable frente al beneficio en velocidad, garantizando que el `Retriever` entregue los chunks de contexto relevantes al agente en tiempo real.
