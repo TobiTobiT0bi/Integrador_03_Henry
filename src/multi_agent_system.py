@@ -1,18 +1,14 @@
 import os
 import sys
-
-from pathlib import Path
-
-# Forzar que el directorio raíz del proyecto sea el primero en sys.path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 import json
 import uuid
-from typing import Dict, Any, Optional
+from typing import Dict, Any
+from dotenv import load_dotenv
+
+# Cargar variables de entorno antes de importar componentes
+load_dotenv()
+
 from langchain_openai import ChatOpenAI
-
-from langfuse import get_client
-
 from src.database import VectorDatabaseManager
 from src.agents.orchestrator import Orchestrator
 from src.agents.clarification_agent import ClarificationAgent
@@ -22,15 +18,33 @@ from src.agents.finance_agent import FinanceAgent
 from src.agents.evaluator import EvaluatorAgent
 from src.config import Config
 
-import src.agents.evaluator as eval_module
-print(f"DEBUG EVALUATOR PATH: {eval_module.__file__}")
+# Intento seguro de importación de Langfuse
+LANGFUSE_ENABLED = False
+try:
+    from langfuse import Langfuse
+    from langfuse.langchain import CallbackHandler
+    LANGFUSE_ENABLED = True
+except Exception as e:
+    print(f"⚠️ Advertencia: No se pudo importar Langfuse: {e}")
 
 class MultiAgentOrchestratorSystem:
     def __init__(self):
         print("⚙️ Inicializando modelo de lenguaje centralizado...")
         self.llm = ChatOpenAI(model=Config.MODEL_NAME, temperature=0)
-        self.langfuse_client = get_client()
         
+        # Inicializar cliente de Langfuse con salvaguarda
+        self.langfuse_client = None
+        if LANGFUSE_ENABLED:
+            try:
+                self.langfuse_client = Langfuse(
+                    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+                    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+                    host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+                )
+                print("📡 Cliente de Langfuse inicializado correctamente.")
+            except Exception as e:
+                print(f"⚠️ No se pudo conectar con Langfuse (se continuará sin monitoreo): {e}")
+
         print("📦 Cargando base de datos vectorial Chroma...")
         self.db_manager = VectorDatabaseManager()
         self.db_manager.build_or_load_vector_stores()
@@ -46,12 +60,17 @@ class MultiAgentOrchestratorSystem:
         }
 
     def process_customer_query(self, query: str, run_evaluator: bool = True) -> Dict[str, Any]:
-        """
-        Recibe la consulta del usuario, la clasifica mediante el Orquestador,
-        delega al agente especializado y la audita mediante el Evaluator.
-        """
-        # Generar un ID único para asociar los eventos y scores en Langfuse
         trace_id = str(uuid.uuid4())
+        
+        # 1. Instanciación correcta de CallbackHandler para Langfuse v4
+        callbacks = []
+        if self.langfuse_client:
+            try:
+                # En v4 se usa sin 'trace_id' en el constructor
+                langfuse_handler = CallbackHandler()
+                callbacks.append(langfuse_handler)
+            except Exception as e:
+                print(f"⚠️ Error al crear CallbackHandler: {e}")
 
         print(f"\n📥 [Entrada de Ticket]: '{query}'")
         
@@ -74,15 +93,21 @@ class MultiAgentOrchestratorSystem:
             if hasattr(agent, "run"):
                 final_response = agent.run(query)
             elif hasattr(agent, "chain"):
-                final_response = agent.chain.invoke({"query": query}).content
+                # Intentamos invocar con string si la chain espera string o pasamos dict si la chain usa RunnablePassthrough
+                try:
+                    res = agent.chain.invoke(query, config={"callbacks": callbacks})
+                except Exception:
+                    res = agent.chain.invoke({"query": query}, config={"callbacks": callbacks})
+                
+                final_response = res.content if hasattr(res, "content") else str(res)
             else:
                 final_response = str(agent(query))
                 
         print(f"💬 [Respuesta del Agente]: {final_response}\n")
 
-        # Paso 3: Auditoría con el EvaluatorAgent
+        # Paso 3: Auditoría y métricas en EvaluatorAgent
         eval_results = None
-        if run_evaluator:
+        if run_evaluator and self.langfuse_client:
             eval_results = self.evaluator.evaluate_and_log(
                 query=query,
                 response=final_response,
@@ -102,7 +127,6 @@ class MultiAgentOrchestratorSystem:
 # =====================================================================
 if __name__ == "__main__":
     system = MultiAgentOrchestratorSystem()
-    langfuse_client = get_client()
 
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         test_queries_path = "test_queries.json"
@@ -115,12 +139,12 @@ if __name__ == "__main__":
             
             for index, case in enumerate(test_cases, start=1):
                 print(f"\n=== Prueba {index}/{len(test_cases)} ===")
-                system.process_customer_query(case["query"], run_evaluator=True)
+                system.process_customer_query(query=case["query"], run_evaluator=True)
         else:
             print(f"⚠️ No se encontró '{test_queries_path}'.")
 
     else:
-        print("\n🤖 ¡Sistema Multi-Agente Activo! Escribe 'salir' for finalizar.\n")
+        print("\n🤖 ¡Sistema Multi-Agente Activo! Escribe 'salir' para finalizar.\n")
         while True:
             try:
                 user_input = input("👤 Tú: ").strip()
@@ -136,4 +160,8 @@ if __name__ == "__main__":
                 print("\n👋 Sesión finalizada.")
                 break
 
-    langfuse_client.flush()
+    if system.langfuse_client:
+        try:
+            system.langfuse_client.flush()
+        except Exception:
+            pass
